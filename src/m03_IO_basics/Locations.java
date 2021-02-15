@@ -10,7 +10,13 @@ import java.util.Set;
 public class Locations implements Map<Integer, Location> {
     private static Map<Integer, Location> locations = new HashMap<>();
 
-    public static void main(String[] args) {
+    // wyjątki muszą być obsłużone albo w bloku catch, albo w deklaracji metody,
+    // czyli za pomocą throws IOException:
+    // public static void main(String[] args) throws IOException {}
+    // (wtedy już nie trzeba używać bloku catch)
+    public static void main(String[] args) throws IOException {
+
+        /*
         FileWriter localFile = null;
         try{
             localFile = new FileWriter("locations.txt");
@@ -21,7 +27,7 @@ public class Locations implements Map<Integer, Location> {
             System.out.println("In catch block");
             e.printStackTrace();
         } finally {
-            // blok try musi mieć też blok catch i/lub finally
+            // blok try musi mieć też blok catch i/lub finally (ewentualnie throws w deklaracji metody)
             // finally wykona się zawsze po bloku try
             System.out.println("In finally block");
             try{
@@ -33,9 +39,17 @@ public class Locations implements Map<Integer, Location> {
             } catch (IOException e){
                 e.printStackTrace();
             }
-
         }
+         */
 
+        // kod powyżej przy wykorzystaniu try with resources
+        // w deklaracji metody trzeba zrobić obsługę wyjątków (throws)
+        try(FileWriter localFile = new FileWriter("locations.txt")){
+            for (Location location : locations.values()){
+                localFile.write(location.getLocationID() + "," + location.getDescription() + "\n");
+            }
+        }
+        // try with resources automatycznie zamknie FileWritera
     }
 
     // static sprawia, że jest tylko 1 kopia danych we wszystkich instancjach tej klasy
