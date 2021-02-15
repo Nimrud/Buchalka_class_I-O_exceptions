@@ -19,10 +19,6 @@ public class Location {
         this.exits.put("Q", 0);
     }
 
-//    public void addExit(String direction, int location) {
-//        exits.put(direction, location);
-//    }
-
     public int getLocationID() {
         return locationID;
     }

@@ -1,5 +1,7 @@
 package m03_IO_basics;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -7,6 +9,34 @@ import java.util.Set;
 
 public class Locations implements Map<Integer, Location> {
     private static Map<Integer, Location> locations = new HashMap<>();
+
+    public static void main(String[] args) {
+        FileWriter localFile = null;
+        try{
+            localFile = new FileWriter("locations.txt");
+            for (Location location : locations.values()){
+                localFile.write(location.getLocationID() + "," + location.getDescription() + "\n");
+            }
+        } catch (IOException e){
+            System.out.println("In catch block");
+            e.printStackTrace();
+        } finally {
+            // blok try musi mieć też blok catch i/lub finally
+            // finally wykona się zawsze po bloku try
+            System.out.println("In finally block");
+            try{
+                // bardzo ważne jest zamknięcie zapisu!
+                System.out.println("Attempt to close localFile");
+                if (localFile != null){
+                    localFile.close();
+                }
+            } catch (IOException e){
+                e.printStackTrace();
+            }
+
+        }
+
+    }
 
     // static sprawia, że jest tylko 1 kopia danych we wszystkich instancjach tej klasy
     // blok "static" jest wykonywany tylko raz, kiedy klasa jest ładowana
