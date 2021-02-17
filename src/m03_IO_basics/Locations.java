@@ -41,7 +41,7 @@ public class Locations implements Map<Integer, Location> {
         }
          */
 
-        // kod powyżej przy wykorzystaniu try with resources
+        // kod, który jest powyżej, ale tym razem przy wykorzystaniu try with resources
         // w deklaracji metody trzeba zrobić obsługę wyjątków (throws)
         try(FileWriter localFile = new FileWriter("locations.txt");
             FileWriter dirFile = new FileWriter("directions.txt")){
@@ -59,11 +59,7 @@ public class Locations implements Map<Integer, Location> {
     // static sprawia, że jest tylko 1 kopia danych we wszystkich instancjach tej klasy
     // blok "static" jest wykonywany tylko raz, kiedy klasa jest ładowana
     static {
-        Scanner s = null;
-
-        // próba wczytania lokacji z pliku:
-        try{
-            s = new Scanner(new FileReader("locations.txt"));
+        try(Scanner s = new Scanner(new FileReader("locations_big.txt"))){
             s.useDelimiter(",");
             while (s.hasNextLine()){
                 int loc = s.nextInt();
@@ -75,15 +71,10 @@ public class Locations implements Map<Integer, Location> {
             }
         } catch (IOException e){
             e.printStackTrace();
-        } finally {
-            if (s != null){
-                s.close();
-            }
         }
 
         // próba wczytania kierunków z pliku (przy wykorzyst. BufferedReadera):
-        try{
-            s = new Scanner(new BufferedReader(new FileReader("directions.txt")));
+        try(Scanner s = new Scanner(new BufferedReader(new FileReader("directions_big.txt")))){
             s.useDelimiter(",");
             while (s.hasNextLine()){
 //                int loc = s.nextInt();
@@ -105,10 +96,6 @@ public class Locations implements Map<Integer, Location> {
             }
         } catch (IOException e){
             e.printStackTrace();
-        } finally {
-            if (s != null){
-                s.close();
-            }
         }
 
 
