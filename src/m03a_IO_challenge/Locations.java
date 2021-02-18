@@ -1,33 +1,45 @@
 package m03a_IO_challenge;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 public class Locations implements Map<Integer, Location> {
-    private static Map<Integer, Location> locations = new HashMap<>();
+    private static Map<Integer, Location> locations = new LinkedHashMap<>();
 
     public static void main(String[] args) throws IOException {
-        try(FileWriter localFile = new FileWriter("locations.txt");
-            FileWriter dirFile = new FileWriter("directions.txt")){
+        try(BufferedWriter buffWriterLocations = new BufferedWriter(new FileWriter("locations_1.txt"));
+            BufferedWriter buffWriterDirections = new BufferedWriter(new FileWriter("directions_1.txt"))){
             for (Location location : locations.values()){
-                localFile.write(location.getLocationID() + "," + location.getDescription() + "\n");
+                buffWriterLocations.write(location.getLocationID() + "," + location.getDescription() + "\n");
                 for (String direction : location.getExits().keySet()){
-                    dirFile.write(location.getLocationID() + "," + direction + "," + location.getExits().get(direction) + "\n");
+                    if (!direction.equalsIgnoreCase("Q")){
+                        buffWriterDirections.write(location.getLocationID() + "," + direction + "," + location.getExits().get(direction) + "\n");
+                    }
                 }
             }
         }
     }
 
     static {
-        try(Scanner s = new Scanner(new FileReader("locations_big.txt"))){
-            s.useDelimiter(",");
-            while (s.hasNextLine()){
-                int loc = s.nextInt();
-                s.skip(s.delimiter());
-                String description = s.nextLine();
+        try(BufferedReader buffRead = new BufferedReader(new FileReader("locations_big.txt"))){
+            String input;
+            while ((input = buffRead.readLine()) != null){
+                String[] data = input.split(",");  // UWAGA! To usuwa przecinki również z tekstu!
+                int loc = Integer.parseInt(data[0]);
+
+                String description;
+                StringBuilder sb = new StringBuilder();
+
+                int tabLength = data.length;
+                // tworzę nową, tymczasową tablicę i kopiuję do niej elementy z pierwszej tablicy
+                // ale bez pierwszego elementu, dodaję też usunięte powyżej przecinki
+                String[] tempArray = new String[tabLength-1];
+                for (int i = 1; i < tabLength; i++){
+                    sb.append(",").append(tempArray[i-1] = data[i]);
+                }
+                // usuwam dodany na początku Stringa przecinek
+                description = sb.substring(1);
+
                 System.out.println("imported loc: " + loc + ": " + description);
                 Map<String, Integer> tempExit = new HashMap<>();
                 locations.put(loc, new Location(loc, description, tempExit));
@@ -36,10 +48,9 @@ public class Locations implements Map<Integer, Location> {
             e.printStackTrace();
         }
 
-        try(Scanner s = new Scanner(new BufferedReader(new FileReader("directions_big.txt")))){
-            s.useDelimiter(",");
-            while (s.hasNextLine()){
-                String input = s.nextLine();
+        try(BufferedReader buffRead = new BufferedReader(new FileReader("directions_big.txt"))){
+            String input;
+            while ((input = buffRead.readLine()) != null){
                 String[] data = input.split(",");
                 int loc = Integer.parseInt(data[0]);
                 String direction = data[1];
