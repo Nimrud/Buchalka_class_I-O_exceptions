@@ -4,14 +4,25 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-// Klasa importowana (razem z Location.class) z jednego z wcześniejszych modułów
+/*
+Challenge:
+Part 1:
+Modify the program so that it uses a BufferedReader (not Scanner) to read in the locations data.
+Part 2:
+Modify the main method of the Locations class so that it uses a BufferedWriter to write data.
+Open the locations_1.txt and directions_1.txt files to check that the data has been written successfully.
+You will then need to make another change to the program to allow for the 0 (Quit) exits
+before using the newly created files.
+Hint: You may want to change the three instances of HashMap to LinkedHashMap in the Location class
+and one instance in the Locations class so that you can compare the files more easily.
+ */
 public class Main {
     private static Locations locations = new Locations();
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
-        Map<String, String> vocabulary = new HashMap<String, String>();
+        Map<String, String> vocabulary = new HashMap<>();
         vocabulary.put("QUIT", "Q");
         vocabulary.put("NORTH", "N");
         vocabulary.put("SOUTH", "S");
