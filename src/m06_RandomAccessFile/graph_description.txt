@@ -1,0 +1,44 @@
+      1)   This is the space in bytes needed to hold an integer (4 bytes)
+           (In an array starting at 0...) index 0 to 3
+           These bytes hold an integer which represents the count/number of items (locations) we have
+
+      2)  Another integer (4 bytes)
+          Index 4 to 7
+          Represents the end of the index list and/or start of the records/data
+
+          In this case, the value of this would be calculated by taking the number of records (value of 1),
+          and multiplying it by the size of 3 integers, then adding the size of count and start offset,
+          then subtracting 1 for index position
+
+            ... ((count * 3 * size of int) + (size of count) + (size of start of offset)) - 1)
+            ... ((141 * 3 * 4) + 4 + 4) - 1)
+
+      3)
+         a) The indexes, pairs of 3 integers. Each pair is 12 bytes long ((4 bytes per integer) * 3)
+            Index 8 through (the value of 2. In this case, 1699)
+
+         b) A single pair of 3 Integers representing the index of the record. 12 bytes long.
+            - Index 0-3 (Integer #1)    Unique ID of location
+            - Index 4-7 (Integer #2)    Index of the start of the location record
+            - Index 8-11 (Integer #3)   Total length of data
+
+      4) The actual data/records that will have varied lengths
+         Index (value of 2, plus one) through (End of File)
+
+
+Given a sample case where we'd want to locate data at index 7 with 141 records:
+
+     1) holds the value of integer 141
+     2) holds the value 1699 following calculation above
+
+    To find the record at index 7, we'd just have to find the location of index 7 in the list of indexes using the same logic used for finding the value of the offset.
+
+        (((7 * (size of int) * 3) + (size of int) + (size of int)) - 1)
+        (((7 * 4 * 3) + 4 + 4) -1) = 91
+
+    Now we know that we can find the index for the record for 7, starting at byte 91 through byte 102.
+        - 91 to 94    Unique ID
+        - 95 to 98    Index start of location record
+        - 99 to 102   Length of record
+
+    And with the 2 final pieces of data, we now have the starting index for the record holding 7, and can calculate the ending index using the length.
