@@ -6,6 +6,7 @@ import java.util.*;
 public class Locations implements Map<Integer, Location> {
     private static Map<Integer, Location> locations = new LinkedHashMap<>();
     private static Map<Integer, IndexRecord> index = new LinkedHashMap<>();
+    private static RandomAccessFile ra;
 
     // Opis Tima Buchalki:
     // 1. This first four bytes will contain the number of locations (bytes 0-3)
@@ -66,7 +67,25 @@ public class Locations implements Map<Integer, Location> {
     }
 
     static {
+        try{
+            ra = new RandomAccessFile("locations_rand.dat", "rwd");
+            // liczba lokacji nie jest wykorzystywana, ale to dobra praktyka, żeby zapisywać liczbę rekordów w pliku:
+            int numLocations = ra.readInt();
+            long locationsStartPoint = ra.readInt();
 
+            while (ra.getFilePointer() < locationsStartPoint){
+                int locationID = ra.readInt();
+                int locationsStart = ra.readInt();
+                int locationLength = ra.readInt();
+
+                IndexRecord record = new IndexRecord(locationsStart, locationLength);
+                index.put(locationID, record);
+            }
+        } catch (IOException e){
+            System.out.println("IOException in static initializer " + e.getMessage());
+        }
+
+        // poniższy kod wykorzystać trzeba, gdyby pojawiła się konieczność ponownego wczytania lokacji bez stworzonego pliku locations_rand.dat
         /*
         try(BufferedReader buffRead = new BufferedReader(new FileReader("locations_big.txt"))){
             String input;
@@ -111,6 +130,28 @@ public class Locations implements Map<Integer, Location> {
             e.printStackTrace();
         }
          */
+    }
+
+    public Location getLocation(int locationID) throws IOException {
+        IndexRecord record = index.get(locationID);
+        ra.seek(record.getStartByte());
+        int id = ra.readInt();
+        String description = ra.readUTF();
+        String exits = ra.readUTF();
+        String[] exitPart = exits.split(",");
+
+        Location location = new Location(locationID, description, null);
+
+        if (locationID != 0){
+            for (int i=0; i< exitPart.length; i++){
+                System.out.println("exitPart = " + exitPart[i]);
+                System.out.println("exitPart [+1] = " + exitPart[i+1]);
+                String direction = exitPart[i];
+                int destination = Integer.parseInt(exitPart[++i]);
+                location.addExit(direction, destination);
+            }
+        }
+        return location;
     }
 
     @Override
@@ -171,5 +212,9 @@ public class Locations implements Map<Integer, Location> {
     @Override
     public Set<Entry<Integer, Location>> entrySet() {
         return locations.entrySet();
+    }
+
+    public void close() throws IOException {
+        ra.close();
     }
 }
