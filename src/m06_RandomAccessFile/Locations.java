@@ -1,13 +1,11 @@
 package m06_RandomAccessFile;
 
 import java.io.*;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class Locations implements Map<Integer, Location> {
     private static Map<Integer, Location> locations = new LinkedHashMap<>();
+    private static Map<Integer, IndexRecord> index = new LinkedHashMap<>();
 
     // Opis Tima Buchalki:
     // 1. This first four bytes will contain the number of locations (bytes 0-3)
@@ -31,30 +29,88 @@ public class Locations implements Map<Integer, Location> {
             // powyżej obliczanie pozycji lokacji
             raf.writeInt(locationStart);
 
+            long indexStart = raf.getFilePointer();
+
+            int startPointer = locationStart;
+            raf.seek(startPointer);
+
+            for (Location location : locations.values()){
+                // RandomAccessFile nie ma opcji zapisu/odczytu całych obiektów,
+                // więc musimy to zrobić po kawałku:
+                raf.writeInt(location.getLocationID());
+                raf.writeUTF(location.getDescription());
+                StringBuilder builder = new StringBuilder();
+                for (String direction : location.getExits().keySet()){
+                    if (!direction.equalsIgnoreCase("Q")){
+                        builder.append(direction);
+                        builder.append(",");
+                        builder.append(location.getExits().get(direction));
+                        builder.append(",");
+                    }
+                }
+                raf.writeUTF(builder.toString());
+
+                IndexRecord record = new IndexRecord(startPointer, (int) (raf.getFilePointer() - startPointer));
+                index.put(location.getLocationID(), record);
+
+                startPointer = (int) raf.getFilePointer();
+            }
+
+            raf.seek(indexStart);
+            for (Integer locationID : index.keySet()){
+                raf.writeInt(locationID);
+                raf.writeInt(index.get(locationID).getStartByte());
+                raf.writeInt(index.get(locationID).getLength());
+            }
         }
     }
 
     static {
-        try(ObjectInputStream locFile = new ObjectInputStream(new BufferedInputStream(new FileInputStream("locations.dat")))){
-            boolean endOfFile = false;
-            while (!endOfFile){
-                try{
-                    Location location = (Location) locFile.readObject();
-                    System.out.println("Read location " + location.getLocationID() + " : " + location.getDescription());
-                    System.out.println("Found " + location.getExits().size() + " exits");
 
-                    locations.put(location.getLocationID(), location);
-                } catch (EOFException e){
-                    endOfFile = true;
+        /*
+        try(BufferedReader buffRead = new BufferedReader(new FileReader("locations_big.txt"))){
+            String input;
+            while ((input = buffRead.readLine()) != null){
+                String[] data = input.split(",");  // UWAGA! To usuwa przecinki również z tekstu!
+                int loc = Integer.parseInt(data[0]);
+
+                String description;
+                StringBuilder sb = new StringBuilder();
+
+                int tabLength = data.length;
+                // tworzę nową, tymczasową tablicę i kopiuję do niej elementy z pierwszej tablicy
+                // ale bez pierwszego elementu, dodaję też usunięte powyżej przecinki
+                String[] tempArray = new String[tabLength-1];
+                for (int i = 1; i < tabLength; i++){
+                    sb.append(",").append(tempArray[i-1] = data[i]);
                 }
+                // usuwam dodany na początku Stringa przecinek
+                description = sb.substring(1);
+
+                System.out.println("imported loc: " + loc + ": " + description);
+                Map<String, Integer> tempExit = new HashMap<>();
+                locations.put(loc, new Location(loc, description, tempExit));
             }
-        } catch (InvalidClassException e){
-            System.out.println("InvalidClassException " + e.getMessage());
-        } catch (IOException io) {
-            System.out.println("==> IO Exception <==");
-        } catch (ClassNotFoundException e){
-            System.out.println("ClassNotFoundException " + e.getMessage());
+        } catch (IOException e){
+            e.printStackTrace();
         }
+
+        try(BufferedReader buffRead = new BufferedReader(new FileReader("directions_big.txt"))){
+            String input;
+            while ((input = buffRead.readLine()) != null){
+                String[] data = input.split(",");
+                int loc = Integer.parseInt(data[0]);
+                String direction = data[1];
+                int destination = Integer.parseInt(data[2]);
+
+                System.out.println(loc + ": " + direction + ": " + destination);
+                Location location = locations.get(loc);
+                location.addExit(direction, destination);
+            }
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+         */
     }
 
     @Override
