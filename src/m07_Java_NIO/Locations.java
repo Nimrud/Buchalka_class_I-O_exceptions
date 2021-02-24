@@ -1,19 +1,25 @@
 package m07_Java_NIO;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
 public class Locations implements Map<Integer, Location> {
-    private static Map<Integer, Location> locations = new HashMap<>();
+    private static Map<Integer, Location> locations = new LinkedHashMap<>();
 
     public static void main(String[] args) throws IOException {
         // W Java NIO rekomendowane jest używanie klasy Path zamiast File:
+        Path locPath = FileSystems.getDefault().getPath("locations_1.dat");
+        try(ObjectOutputStream locFile = new ObjectOutputStream(new BufferedOutputStream(Files.newOutputStream(locPath)))){
+            for (Location location : locations.values()){
+                locFile.writeObject(location);
+            }
+        }
+
+        // tak samo działający kod, ale bez wykorzystania ObjectOutputStream:
+        /*
         Path locPath = FileSystems.getDefault().getPath("locations_big_nio.txt");
         Path dirPath = FileSystems.getDefault().getPath("directions_big_nio.txt");
         try(BufferedWriter locFile = Files.newBufferedWriter(locPath);
@@ -31,9 +37,32 @@ public class Locations implements Map<Integer, Location> {
         } catch (IOException e){
             System.out.println("IOException: " + e.getMessage());
         }
+         */
     }
 
     static {
+        Path locPath = FileSystems.getDefault().getPath("locations_1.dat");
+        try(ObjectInputStream locFile = new ObjectInputStream(new BufferedInputStream(Files.newInputStream(locPath)))) {
+            boolean eof = false;
+            while (!eof) {
+                try {
+                    Location location = (Location) locFile.readObject();
+                    System.out.println("Read location " + location.getLocationID());
+                    locations.put(location.getLocationID(), location);
+                } catch (EOFException e) {
+                    eof = true;
+                }
+            }
+        } catch (InvalidClassException e){
+            System.out.println("InvalidClassException: " + e.getMessage());
+        } catch (IOException e){
+            System.out.println("IOException: " + e.getMessage());
+        } catch (ClassNotFoundException e){
+            System.out.println("ClassNotFoundException: " + e.getMessage());
+        }
+
+        // tak samo działający kod, ale bez wykorzystania ObjectInputStream:
+        /*
         Path locPath = FileSystems.getDefault().getPath("locations_big_nio.txt");
         Path dirPath = FileSystems.getDefault().getPath("directions_big_nio.txt");
         try(Scanner scanner = new Scanner(Files.newBufferedReader(locPath))){
@@ -66,6 +95,7 @@ public class Locations implements Map<Integer, Location> {
         } catch (IOException e){
             System.out.println("IOException: " + e.getMessage());
         }
+         */
     }
 
     @Override
