@@ -2,6 +2,8 @@ package m08_NIO_read_write;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
@@ -35,6 +37,25 @@ public class Main_BinaryFiles {
             // to nie musimy używać flip()
             // ale trzeba go użyć za każdym razem, gdy zmieniamy odczyt na zapis (lub zapis na odczyt)
             // czyli: jak już napełniliśmy bufor zapisami, to robimy flip() i zapisujemy bufor do kanału (pliku)
+
+
+            // ODCZYT - przy użyciu IO (a nie NIO):
+            RandomAccessFile ra = new RandomAccessFile("JavaNIO_data.dat", "rwd");
+            byte[] inputArray = new byte[outputBytes.length];
+            ra.read(inputArray);
+            System.out.println(new String(inputArray));
+
+            long int1 = ra.readInt();
+            long int2 = ra.readInt();
+            System.out.println(int1);
+            System.out.println(int2);
+
+            // ODZCYT - przy użyciu pakietu NIO:
+            RandomAccessFile ra2 = new RandomAccessFile("JavaNIO_data.dat", "rwd");
+            FileChannel channel = ra2.getChannel();
+            buffer.flip();
+            long numBytesRead = channel.read(buffer);
+            System.out.println("outputBytes: " + new String(outputBytes));
         } catch(IOException e){
             e.printStackTrace();
         }
