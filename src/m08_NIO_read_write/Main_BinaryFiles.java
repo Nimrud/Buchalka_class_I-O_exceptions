@@ -50,12 +50,42 @@ public class Main_BinaryFiles {
             System.out.println(int1);
             System.out.println(int2);
 
-            // ODZCYT - przy użyciu pakietu NIO:
+            // ODCZYT - przy użyciu pakietu NIO:
             RandomAccessFile ra2 = new RandomAccessFile("JavaNIO_data.dat", "rwd");
             FileChannel channel = ra2.getChannel();
             buffer.flip();
             long numBytesRead = channel.read(buffer);
             System.out.println("outputBytes: " + new String(outputBytes));
+
+            // odczyt - druga metoda odczytu Stringa, z wykorzystaniem buffer.array()
+            if (buffer.hasArray()){
+                System.out.println("outputBytes [buffer.array()]: " + new String(buffer.array()));
+            }
+
+            // Absolute read:
+            intBuffer.flip();
+            channel.read(intBuffer);
+            System.out.println("First int: " + intBuffer.getInt(0));
+            intBuffer.flip();
+            channel.read(intBuffer);
+            System.out.println("Second int: " + intBuffer.getInt(0));
+            // w absolute read podajemy pozycję indeksu, od którego bufor ma zacząć odczyt
+            // redukuje to liczbę użyć metody .flip()
+
+            // Relative read:
+            //            intBuffer.flip();
+            //            numBytesRead = channel.read(intBuffer);
+            //            intBuffer.flip();
+            //            System.out.println("First int: " + intBuffer.getInt());
+            //            intBuffer.flip();
+            //            numBytesRead = channel.read(intBuffer);
+            //            intBuffer.flip();
+            //            System.out.println("Second int: " + intBuffer.getInt());
+
+            // ponieważ nie używamy tu try with resources, to na koniec trzeba pozamykać zasoby:
+            channel.close();
+            ra.close();
+
         } catch(IOException e){
             e.printStackTrace();
         }
