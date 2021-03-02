@@ -20,8 +20,7 @@ public class Main_Multiple_R_W {
             buffer.putInt(431);
             buffer.putInt(-648);
             byte[] outputBytes2 = "Nice to meet you".getBytes();
-            buffer.put(outputBytes2);
-            buffer.putInt(13);
+            buffer.put(outputBytes2).putInt(133).putInt(-26);    // chaining
             buffer.flip();
             // flip() używamy, bo w tym momencie kończymy zapis do bufora
             // następnie ODCZYTUJEMY z bufora, aby zapisać jego zawartość do kanału
@@ -45,6 +44,7 @@ public class Main_Multiple_R_W {
             readBuffer.get(inputString2);
             System.out.println("inputString2 = " + new String(inputString2));
             System.out.println("int3 = " + readBuffer.getInt());
+            System.out.println("int4 = " + readBuffer.getInt());
         } catch(IOException e){
             e.printStackTrace();
         }
