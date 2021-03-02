@@ -52,6 +52,7 @@ public class Main_Seekable_Byte_Channel {
             buffer.flip();
             binChannel.write(buffer);
 
+            // ODCZYT:
             RandomAccessFile ra = new RandomAccessFile("JavaNIO_data2.dat", "rwd");
             FileChannel channel = ra.getChannel();
             ByteBuffer readBuffer = ByteBuffer.allocate(100);
