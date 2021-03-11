@@ -1,5 +1,6 @@
 package m13_reading_directories;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 
@@ -14,7 +15,8 @@ public class Main {
                         // zwraca tylko pliki (pomija foldery)
                     }
                 };
-        Path directory = FileSystems.getDefault().getPath("src/m11a");
+        //Path directory = FileSystems.getDefault().getPath("src/m11a");
+        Path directory = FileSystems.getDefault().getPath("src" + File.separator + "m11a");  // patrz: komentarz na dole
 
 //        try (DirectoryStream<Path> contents = Files.newDirectoryStream(directory, "*.{dat,txt}")) {
 //            // powyżej jako drugi parametr (nieobowiązkowy) możemy podać typ poszukiwanych plików
@@ -27,6 +29,48 @@ public class Main {
             }
         } catch (IOException | DirectoryIteratorException e) {
             e.printStackTrace();
+        }
+
+        // separatory w ścieżkach różnią się pomiędzy systemami!
+        // Windows: \
+        // Linux, MacOS: /
+        // z tego powodu lepiej nie kodować separatora "na sztywno", ale używać jednej z poniższych metod:
+        String separator = File.separator;
+        System.out.println(separator);
+
+        separator = FileSystems.getDefault().getSeparator();
+        System.out.println(separator);
+
+        // TWORZENIE PLIKU TYMCZASOWEGO:
+        try {
+            Path tempFile = Files.createTempFile("myApp", ".appext");
+            // pierwszy parametr to prefix pliku tymczasowego, drugi to suffix (rozszerzenie)
+            System.out.println("Temporary file path = " + tempFile.toAbsolutePath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // PODGLĄD DYSKÓW SYSTEMOWYCH:
+        Iterable<FileStore> stores = FileSystems.getDefault().getFileStores();
+        for (FileStore store : stores) {
+            System.out.println("Volume name/Drive letter: " + store);
+            System.out.println("File store: " + store.name());
+        }
+
+        // ROOT DIRECTORY:
+        System.out.println("=== Root Directory ===");
+        Iterable<Path> paths = FileSystems.getDefault().getRootDirectories();
+        for (Path path : paths) {
+            System.out.println(path);
+        }
+
+        // ODCZYT WSZYSTKICH PLIKÓW I FOLDERÓW, włącznie z podfolderami:
+        System.out.println("===> Walking tree for m11a <===");
+        Path m11aPath = FileSystems.getDefault().getPath("src" + File.separator + "m11a");
+        try {
+            Files.walkFileTree(m11aPath, new Moving_thru_tree());
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
         }
     }
 }
