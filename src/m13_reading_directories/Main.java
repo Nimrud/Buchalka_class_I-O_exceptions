@@ -72,5 +72,25 @@ public class Main {
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
+
+        // W JAVA IO JEST INACZEJ!
+
+        // Wydobywanie working directory w JavaIO:
+        // to odpowiednik FileSystems.getDefault()
+        File workingDirectory = new File("").getAbsoluteFile();
+        System.out.println("Working directory: " + workingDirectory.getAbsolutePath());
+
+        System.out.println("== printing Dir2 contents using list() ==");
+        File dir2File = new File(workingDirectory, "src/m11a/Dir2");
+        String[] dir2Contents = dir2File.list();
+        for(int i = 0; i < dir2Contents.length; i++){
+            System.out.println("i=" + i + dir2Contents[i]);
+        }
+
+        System.out.println("== printing Dir2 contents using listFiles() ==");
+        File[] dir2Files = dir2File.listFiles();
+        for (int i = 0; i < dir2Files.length; i++) {
+            System.out.println("i=" + i + dir2Files[i].getName());
+        }
     }
 }

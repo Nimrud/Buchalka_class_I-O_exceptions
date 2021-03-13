@@ -20,5 +20,12 @@ public class Main {
         } catch (IOException e){
             System.out.println(e.getMessage());
         }
+
+
+        // Zamiast używania File (JavaIO) lepiej używać Path (JavaNIO):
+        File file = new File("src" + File.separator + "m11a" + File.separator + "file1.txt");
+        Path convertedPath = file.toPath();
+        System.out.println("Converted path: " + convertedPath);
+
     }
 }
